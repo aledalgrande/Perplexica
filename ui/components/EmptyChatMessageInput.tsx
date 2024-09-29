@@ -64,6 +64,7 @@ const EmptyChatMessageInput = ({
           minRows={2}
           className="bg-transparent placeholder:text-black/50 dark:placeholder:text-white/50 text-sm text-black dark:text-white resize-none focus:outline-none w-full max-h-24 lg:max-h-36 xl:max-h-48"
           placeholder="Ask anything..."
+          autoFocus
         />
         <div className="flex flex-row items-center justify-between mt-4">
           <div className="flex flex-row items-center space-x-1 -mx-2">
