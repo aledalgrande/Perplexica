@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import { getSuggestions } from '@/lib/actions';
 import Error from 'next/error';
 import { useRouter } from 'next/navigation';
+import { NewChatPopup } from '@/components/NewChatPopup';
 
 export type Message = {
   messageId: string;
@@ -330,6 +331,10 @@ const ChatWindow = ({ id }: { id?: string }) => {
     }
   }, [isMessagesLoaded, isWSReady]);
 
+  const startNewChat = async (message: string) => {
+    router.push(`/?q=${encodeURIComponent(message)}`);
+  }
+
   const sendMessage = async (message: string) => {
     if (loading) return;
     setLoading(true);
@@ -495,31 +500,39 @@ const ChatWindow = ({ id }: { id?: string }) => {
     );
   }
 
+  const chat = (
+    <div>
+      {messages.length > 0 ? (
+        <>
+          <Navbar messages={messages} />
+          <Chat
+            loading={loading}
+            messages={messages}
+            sendMessage={sendMessage}
+            messageAppeared={messageAppeared}
+            rewrite={rewrite}
+          />
+        </>
+      ) : (
+        <EmptyChat
+          sendMessage={sendMessage}
+          focusMode={focusMode}
+          setFocusMode={setFocusMode}
+        />
+      )}
+
+      <NewChatPopup
+        sendMessage={startNewChat}
+        focusMode={focusMode}
+        setFocusMode={setFocusMode}
+      />
+    </div>
+  )
+
   return isReady ? (
     notFound ? (
       <Error statusCode={404} />
-    ) : (
-      <div>
-        {messages.length > 0 ? (
-          <>
-            <Navbar messages={messages} />
-            <Chat
-              loading={loading}
-              messages={messages}
-              sendMessage={sendMessage}
-              messageAppeared={messageAppeared}
-              rewrite={rewrite}
-            />
-          </>
-        ) : (
-          <EmptyChat
-            sendMessage={sendMessage}
-            focusMode={focusMode}
-            setFocusMode={setFocusMode}
-          />
-        )}
-      </div>
-    )
+    ) : chat
   ) : (
     <div className="flex flex-row items-center justify-center min-h-screen">
       <svg
