@@ -485,7 +485,7 @@ const ChatWindow = ({ id }: { id?: string }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, initialMessage]);
 
-  if (hasError) {
+  if (!isReady && hasError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="dark:text-white/70 text-black/70 text-sm">
