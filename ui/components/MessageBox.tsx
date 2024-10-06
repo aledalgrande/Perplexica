@@ -1,7 +1,7 @@
 'use client';
 
 /* eslint-disable @next/next/no-img-element */
-import React, { MutableRefObject, useEffect, useState } from 'react';
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react';
 import { Message } from './ChatWindow';
 import { cn } from '@/lib/utils';
 import {
@@ -19,6 +19,7 @@ import MessageSources from './MessageSources';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
 import { useSpeech } from 'react-text-to-speech';
+import hljs from 'highlight.js';
 
 const MessageBox = ({
   message,
@@ -65,6 +66,22 @@ const MessageBox = ({
 
   const { speechStatus, start, stop } = useSpeech({ text: speechMessage });
 
+  // https://www.npmjs.com/package/markdown-to-jsx#syntax-highlighting
+  function SyntaxHighlightedCode(props: any) {
+    const ref = React.useRef<HTMLElement | null>(null);
+
+    useEffect(() => {
+      if (ref.current && props.className?.includes('lang-')) {
+        hljs.highlightElement(ref.current)
+
+        // hljs won't reprocess the element unless this attribute is removed
+        ref.current.removeAttribute('data-highlighted')
+      }
+    }, [props.className, props.children])
+
+    return <code {...props} ref={ref} />
+  }
+
   return (
     <div>
       {message.role === 'user' && (
@@ -110,6 +127,11 @@ const MessageBox = ({
                   'prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0',
                   'max-w-none break-words text-black dark:text-white text-sm md:text-base font-medium',
                 )}
+                options={{
+                  overrides: {
+                    code: SyntaxHighlightedCode
+                  }
+                }}
               >
                 {parsedMessage}
               </Markdown>
