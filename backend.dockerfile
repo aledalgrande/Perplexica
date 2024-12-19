@@ -1,7 +1,4 @@
-FROM node:20-buster
-
-ARG SEARXNG_API_URL
-ENV SEARXNG_API_URL=${SEARXNG_API_URL}
+FROM node:18-slim
 
 WORKDIR /home/perplexica
 
@@ -12,11 +9,12 @@ RUN yarn install
 
 COPY src /home/perplexica/src
 COPY tsconfig.json /home/perplexica/
-COPY config.toml /home/perplexica/
 COPY drizzle.config.ts /home/perplexica/
 
 RUN mkdir /home/perplexica/data
+RUN mkdir /home/perplexica/uploads
 
+RUN yarn install --frozen-lockfile --network-timeout 600000
 RUN yarn build
 
 CMD ["yarn", "start"]

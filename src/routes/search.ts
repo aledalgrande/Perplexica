@@ -1,7 +1,7 @@
 import express from 'express';
 import logger from '../utils/logger';
-import { BaseChatModel } from 'langchain/chat_models/base';
-import { Embeddings } from 'langchain/embeddings/base';
+import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import type { Embeddings } from '@langchain/core/embeddings';
 import { ChatOpenAI } from '@langchain/openai';
 import {
   getAvailableChatModelProviders,
@@ -9,6 +9,7 @@ import {
 } from '../lib/providers';
 import { searchHandlers } from '../websocket/messageHandler';
 import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
+import { MetaSearchAgentType } from '../search/metaSearchAgent';
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ interface embeddingModel {
 }
 
 interface ChatRequestBody {
+  optimizationMode: 'speed' | 'balanced';
   focusMode: string;
   chatModel?: chatModel;
   embeddingModel?: embeddingModel;
@@ -41,6 +43,7 @@ router.post('/', async (req, res) => {
     }
 
     body.history = body.history || [];
+    body.optimizationMode = body.optimizationMode || 'balanced';
 
     const history: BaseMessage[] = body.history.map((msg) => {
       if (msg[0] === 'human') {
@@ -113,13 +116,20 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Invalid model selected' });
     }
 
-    const searchHandler = searchHandlers[body.focusMode];
+    const searchHandler: MetaSearchAgentType = searchHandlers[body.focusMode];
 
     if (!searchHandler) {
       return res.status(400).json({ message: 'Invalid focus mode' });
     }
 
-    const emitter = searchHandler(body.query, history, llm, embeddings);
+    const emitter = await searchHandler.searchAndAnswer(
+      body.query,
+      history,
+      llm,
+      embeddings,
+      body.optimizationMode,
+      [],
+    );
 
     let message = '';
     let sources = [];
