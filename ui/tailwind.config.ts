@@ -2,9 +2,9 @@ import type { Config } from 'tailwindcss';
 import type { DefaultColors } from 'tailwindcss/types/generated/colors';
 
 const themeDark = (colors: DefaultColors) => ({
-  50: '#0a0a0a',
-  100: '#111111',
-  200: '#1c1c1c',
+  50: '#262c33',
+  100: '#686374',
+  200: '#a3adb3',
 });
 
 const themeLight = (colors: DefaultColors) => ({
@@ -19,7 +19,7 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
+  darkMode: 'media',
   theme: {
     extend: {
       borderColor: ({ colors }) => {
